@@ -5,9 +5,9 @@ import com.sprintmanager.app.dataobjects.Sprint;
 
 public interface SprintService {
 
-	public List<Sprint> getSprintList();
+	public List<Sprint> getSprintList() throws Exception;
 
-	public Sprint getSprint(String sprintNumber);
+	public Sprint getSprint(String sprintNumber) throws Exception;
 
 	public void addSprint(Sprint sprint);
 

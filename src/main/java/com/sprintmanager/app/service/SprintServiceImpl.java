@@ -1,12 +1,17 @@
 package com.sprintmanager.app.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.sprintmanager.app.dataobjects.Sprint;
 
 /**
@@ -16,37 +21,56 @@ import com.sprintmanager.app.dataobjects.Sprint;
 @Service
 public class SprintServiceImpl implements SprintService {
 
-	private List<Sprint> sprintList =  new ArrayList<Sprint>(Arrays.asList(new Sprint(1, "17.1.1", "17.1", new Date(), new Date()),
-			new Sprint(2, "17.1.2", "17.1", new Date(), new Date()),
-			new Sprint(3, "17.1.3", "17.1", new Date(), new Date())));
+	@Autowired
+	private RestTemplate restTemplate;
 
+	@Value("${datasource.endpointurl}")
+	private String endPointUrl;
+
+	public List<Sprint> reliable() {
+		System.out.println("Inside fallback method");
+		return new ArrayList<Sprint>();
+	}
+
+	@HystrixCommand(fallbackMethod="reliable")
 	@Override
-	public List<Sprint> getSprintList() {
+	public List<Sprint> getSprintList() throws Exception {
+		List<Sprint> sprintList;
+		String uri = "http://" + endPointUrl + "/sprints";
+		ObjectMapper objMap = new ObjectMapper();
+		String jsonResponse = restTemplate.getForObject(uri, String.class);
+		sprintList = objMap.readValue(jsonResponse, new TypeReference<List<Sprint>>(){});
+
 		return sprintList;
 	}
 
 	@Override
-	public Sprint getSprint(String sprintNumber) {
-		return sprintList.stream().filter(sprint -> sprint.getSprintNumber().equals(sprintNumber)).findFirst().get();
+	public Sprint getSprint(String sprintNumber) throws Exception {
+		Sprint sprint = null;
+		String uri = "http://" + endPointUrl + "/sprints/1";
+		ObjectMapper objMap = new ObjectMapper();
+		String jsonResponse = restTemplate.getForObject(uri, String.class);
+		sprint = objMap.readValue(jsonResponse, new TypeReference<Sprint>(){});
+
+		return sprint;
 	}
 
 	@Override
 	public void addSprint(Sprint sprint) {
-		sprintList.add(sprint);
+		String uri = "http://" + endPointUrl + "/sprints";
+		HttpEntity<Sprint> request = new HttpEntity<Sprint>(sprint);
+		sprint = restTemplate.postForObject(uri, request, Sprint.class);
 	}
 
 	@Override
 	public void updateSprint(String sprintNumber, Sprint sprintToUpdate) {
-		for (int i = 0; i < sprintList.size(); i++) {
-			if (sprintList.get(i).getSprintNumber().equals(sprintNumber)) {
-				sprintList.set(i, sprintToUpdate);
-				break;
-			}
-		}
+		String uri = "http://" + endPointUrl + "/sprints/" + sprintNumber;
+		restTemplate.put(uri, sprintToUpdate);
 	}
 
 	@Override
 	public void deleteSprint(String sprintNumber) {
-		sprintList.removeIf(sprint -> sprint.getSprintNumber().equals(sprintNumber));
+		String uri = "http://" + endPointUrl + "/sprints/" + sprintNumber;
+		restTemplate.delete(uri);
 	}
 }

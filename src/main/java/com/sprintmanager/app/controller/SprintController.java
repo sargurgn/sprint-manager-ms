@@ -14,33 +14,33 @@ import com.sprintmanager.app.service.SprintService;
 
 @RestController
 public class SprintController {
-	
+
 	@Autowired
 	private SprintService sprintService;
 
 	@RequestMapping("/sprints")
-	public List<Sprint> getSprints() {
+	public List<Sprint> getSprints() throws Exception {
 		return sprintService.getSprintList();
 	}
 
 	@RequestMapping("/sprints/{sprintNumber:.+}")
-	public Sprint getSprint(@PathVariable String sprintNumber) {
+	public Sprint getSprint(@PathVariable String sprintNumber) throws Exception {
 		System.out.println("Inside controller value is " + sprintNumber);
 		return sprintService.getSprint(sprintNumber);
 	}
 
 	@RequestMapping(value = "/sprints", method = RequestMethod.POST)
 	public void addSprint(@RequestBody Sprint sprintToAdd) {
-		sprintService.addSprint(sprintToAdd);
+//		sprintService.addSprint(sprintToAdd);
 	}
 	
 	@RequestMapping(value = "/sprints/{sprintNumber:.+}", method = RequestMethod.PUT)
 	public void updateSprint(@PathVariable String sprintNumber, @RequestBody Sprint sprintToUpdate) {
-		sprintService.updateSprint(sprintNumber, sprintToUpdate);
+//		sprintService.updateSprint(sprintNumber, sprintToUpdate);
 	}
 
 	@RequestMapping(value = "/sprints/{sprintNumber:.+}", method = RequestMethod.DELETE)
 	public void deleteSprint(@PathVariable String sprintNumber) {
-		sprintService.deleteSprint(sprintNumber);
+//		sprintService.deleteSprint(sprintNumber);
 	}
 }
