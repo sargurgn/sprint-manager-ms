@@ -32,14 +32,15 @@ public class SprintServiceImpl implements SprintService {
 		return new ArrayList<Sprint>();
 	}
 
-	@HystrixCommand(fallbackMethod="reliable")
+	@HystrixCommand(fallbackMethod = "reliable")
 	@Override
 	public List<Sprint> getSprintList() throws Exception {
 		List<Sprint> sprintList;
 		String uri = "http://" + endPointUrl + "/sprints";
 		ObjectMapper objMap = new ObjectMapper();
 		String jsonResponse = restTemplate.getForObject(uri, String.class);
-		sprintList = objMap.readValue(jsonResponse, new TypeReference<List<Sprint>>(){});
+		sprintList = objMap.readValue(jsonResponse, new TypeReference<List<Sprint>>() {
+		});
 
 		return sprintList;
 	}
@@ -47,10 +48,11 @@ public class SprintServiceImpl implements SprintService {
 	@Override
 	public Sprint getSprint(String sprintNumber) throws Exception {
 		Sprint sprint = null;
-		String uri = "http://" + endPointUrl + "/sprints/1";
+		String uri = "http://" + endPointUrl + "/sprints/" + sprintNumber;
 		ObjectMapper objMap = new ObjectMapper();
 		String jsonResponse = restTemplate.getForObject(uri, String.class);
-		sprint = objMap.readValue(jsonResponse, new TypeReference<Sprint>(){});
+		sprint = objMap.readValue(jsonResponse, new TypeReference<Sprint>() {
+		});
 
 		return sprint;
 	}
